@@ -1,0 +1,2 @@
+<%@ Control Language="vb" AutoEventWireup="false" Codebehind="Standard.ascx.vb" Inherits="DotNetNuke.Modules.Map.Visuals.Standard" TargetSchema="http://schemas.microsoft.com/intellisense/ie5" %>
+<asp:Label CssClass="Normal" id="lblInstructions" runat="server"></asp:Label>

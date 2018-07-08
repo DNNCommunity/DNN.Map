@@ -1,0 +1,87 @@
+﻿ALTER PROCEDURE {databaseOwner}{objectQualifier}Map_AddPoint(@SourceID int, @GUID nvarchar(200), @Address nvarchar(300), @Description ntext,  @IconIndex int, @Longitude float, @Latitude float, @SequenceNumber int, @SequenceInfo nvarchar(150), @ZoomShow int, @ZoomHide int, @ActionPlot nvarchar(100), @ActionClick nvarchar(100), @ActionOpen nvarchar(100), @SummaryOnly bit)
+AS
+IF @latitude = -1
+	set @latitude = null
+if @longitude = -1
+	set @longitude = null
+	
+declare @PointID int
+Select top 1 @PointID=PointID from {databaseOwner}{objectQualifier}Map_Points where GUID=@GUID and SourceID=@SourceID
+IF @PointID is null
+BEGIN
+	select @PointID = PointID from {databaseOwner}{objectQualifier}Map_Points where SourceID = @SourceID and Latitude = @Latitude and Longitude = @Longitude
+	IF NOT @PointID is null
+	BEGIN
+		IF NOT isnull(@SummaryOnly,0) = 1 AND NOT @Description is null and DATALENGTH(@Description) > 0
+		BEGIN
+			declare @ptrval binary(16)
+			SELECT @ptrval = TEXTPTR(Description)
+			FROM dbo.Map_Points
+			WHERE PointID = @PointID						
+			declare @newline nvarchar(4)
+			set @newline = CHAR(10) 
+			UPDATETEXT {databaseOwner}{objectQualifier}Map_Points.Description @ptrval null 0  @newline
+			UPDATETEXT {databaseOwner}{objectQualifier}Map_Points.Description @ptrval null 0  @Description
+		END
+				
+		UPDATE {databaseOwner}{objectQualifier}Map_Points set
+			SummaryCount = isnull(SummaryCount,1) + 1
+		WHERE PointID = @PointID
+		Select @PointID
+	END
+	ELSE
+	BEGIN
+		INSERT INTO {databaseOwner}{objectQualifier}Map_Points(SourceID,Address,Description, GUID, IconIndex,Longitude,Latitude,SequenceNumber,SequenceInfo,ZoomShow,ZoomHide,ActionPlot,ActionClick,ActionOpen,SummaryCount)
+		VALUES (@SourceID,@Address,CASE WHEN isnull(@SummaryOnly,0) = 1 THEN  null ELSE @Description END,@GUID,@IconIndex,@Longitude,@Latitude,@SequenceNumber,@SequenceInfo,@ZoomShow,@ZoomHide,@ActionPlot,@ActionClick,@ActionOpen,1)
+		Select SCOPE_IDENTITY()	
+	END
+END
+ELSE
+BEGIN
+	UPDATE {databaseOwner}{objectQualifier}Map_Points set
+		SourceID = @SourceID,
+		GUID = @GUID,
+		Address = @Address,
+		Description = @Description,
+		IconIndex = @IconIndex,
+		Longitude = @Longitude,
+		Latitude = @Latitude,
+		SequenceNumber = @SequenceNumber,
+		SequenceInfo = @SequenceInfo,
+		ZoomShow = @ZoomShow,
+		ZoomHide = @ZoomHide,
+		ActionPlot = @ActionPlot,
+		ActionOpen = @ActionOpen,
+		ActionClick = @ActionClick
+	WHERE PointID = @PointID
+	Select @PointID
+END
+
+
+
+GO
+
+ALTER PROCEDURE {databaseOwner}{objectQualifier}Map_UpdatePoint(@PointID int, @SourceID int, @GUID varchar(200), @Address nvarchar(300),@Description ntext, @IconIndex int, @Longitude float, @Latitude float, @SequenceNumber int, @SequenceInfo nvarchar(150), @ZoomShow int, @ZoomHide int, @ActionPlot nvarchar(100), @ActionClick nvarchar(100), @ActionOpen nvarchar(100))
+AS
+IF @latitude = -1
+	set @latitude = null
+if @longitude = -1
+	set @longitude = null
+	
+UPDATE {databaseOwner}{objectQualifier}Map_Points set
+	SourceID = @SourceID,
+	GUID = @GUID,
+	Address = @Address,
+	Description = @Description,
+	IconIndex = @IconIndex,
+	Longitude = @Longitude,
+	Latitude = @Latitude,
+	SequenceNumber = @SequenceNumber,
+	SequenceInfo = @SequenceInfo,
+	ZoomShow = @ZoomShow,
+	ZoomHide = @ZoomHide,
+	ActionPlot = @ActionPlot,
+	ActionOpen = @ActionOpen,
+	ActionClick = @ActionClick,
+	FailedGeo = 0
+WHERE PointID = @PointID

@@ -1,0 +1,75 @@
+﻿DROP PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateMap
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_AddMap
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_DeleteMap
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetMap
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetMaps
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoint
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_DeletePoint
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_AddPoint
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_UpdatePoint
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetProvidersByType
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetProvider
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetSource
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetSource_Service
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetSources
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_AddSource
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_DeleteSource
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateSource
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateSource_Service
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoints
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoints_ByLocation
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetSources_ByProviderName
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetMaps_ByProviderName
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateSourceGeoLocator
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoints_NoLocation
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoint_ByGUID
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoint_ByAddress
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoints_ByProviderName_NoGeo
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_UpdatePoint_Location
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_GetSyncUsers
+GO
+DROP PROCEDURE {databaseOwner}{objectQualifier}Map_DeletePoints
+GO
+DROP TABLE {databaseOwner}{objectQualifier}Map_Maps
+GO
+DROP TABLE {databaseOwner}{objectQualifier}Map_Points
+GO
+DROP TABLE {databaseOwner}{objectQualifier}Map_Providers
+GO
+DROP TABLE {databaseOwner}{objectQualifier}Map_Sources
+GO
+DROP FUNCTION {databaseOwner}{objectQualifier}Map_CalculateDistance
+GO
+DROP FUNCTION {databaseOwner}{objectQualifier}Map_DistanceBetweenPoints
+GO
+DROP FUNCTION {databaseOwner}{objectQualifier}Map_LatFromDistanceBearing
+GO
+DROP FUNCTION {databaseOwner}{objectQualifier}Map_LonFromDistanceBearing
