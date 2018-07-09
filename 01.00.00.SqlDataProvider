@@ -1,0 +1,680 @@
+﻿IF  EXISTS (SELECT * FROM sysobjects WHERE id =OBJECT_ID(N'{databaseOwner}{objectQualifier}Map_DistanceBetweenPoints') AND type in (N'FN'))
+DROP FUNCTION {databaseOwner}{objectQualifier}Map_DistanceBetweenPoints
+GO
+CREATE function {databaseOwner}{objectQualifier}Map_DistanceBetweenPoints
+(
+	@Latitude1 float, 
+	@Longitude1 float,
+	@Latitude2 float, 
+	@Longitude2 float,
+	@Units NVARCHAR(10)
+)
+RETURNS float
+AS
+BEGIN
+	SET @Latitude1 = RADIANS(@Latitude1)
+	SET @Longitude1 = RADIANS(@Longitude1)
+	SET @Latitude2 = RADIANS(@Latitude2)
+	SET @Longitude2 = RADIANS(@Longitude2)
+	DECLARE @R float, @dlon float, @dlat float, @a float, @c float 
+
+	SELECT @R = CASE 
+		WHEN UPPER(LEFT(@Units, 1)) = 'M' THEN 3956.3
+		WHEN UPPER(LEFT(@Units, 1)) = 'N' THEN 3437.7
+		WHEN UPPER(LEFT(@Units, 1)) = 'K' THEN 6367.0
+	END
+
+	SET @dlon = @Longitude2 - @Longitude1 
+	SET @dlat = @Latitude2 - @Latitude1 
+	SET @a = POWER(SIN(@dlat / 2.0), 2.0) + 
+		COS(@Latitude1) * COS(@Latitude2) * POWER(SIN(@dlon / 2.0), 2.0) 
+	SET @c = 2.0 * ATN2(SQRT(@a), SQRT(1.0 - @a)) 
+
+	RETURN (@R * @c)
+
+END
+GO
+
+IF  EXISTS (SELECT * FROM sysobjects WHERE id =OBJECT_ID(N'{databaseOwner}{objectQualifier}Map_LatFromDistanceBearing') AND type in (N'FN'))
+DROP FUNCTION {databaseOwner}{objectQualifier}Map_LatFromDistanceBearing
+GO
+CREATE function {databaseOwner}{objectQualifier}Map_LatFromDistanceBearing(@lat1 float, @lon1 float, @bearing float, @distance float, @type nvarchar(10))
+returns float
+AS
+BEGIN
+declare @d float
+declare @lat2 float
+declare @lon2 float
+declare @brng float
+declare @R float
+
+set @d = @distance
+set @brng= @bearing
+
+set @lat1 = @lat1 * pi() /180
+set @lon1 = @lon1 * pi() / 180
+set @brng = @brng * pi() / 180
+
+set @R = 6371.0
+if LEFT(UPPER(@type),1)='M'
+	set @R = 3956.0
+
+set @d = @d/@R
+
+set @lat2 = @lat1 + @d*cos(@brng)
+
+declare @dPhi float
+declare @q float
+set @dPhi = log(tan(@lat2/2+pi()/4)/tan(@lat1/2+pi()/4))
+if @dPhi != 0
+	set @q = (@lat2-@lat1)/@dPhi
+
+--IS FINITE??
+if (isnumeric(@q)=0)
+	set @q = cos(@lat1)
+declare @dLon float
+set @dLon = @d*sin(@brng)/@q
+
+--BEYOND POLE??
+if (abs(@lat2) > pi()/2)
+	if @lat2 > 0
+		set @lat2 = pi() - @lat2
+	else
+		set @lat2 = -1*pi() - @lat2
+--set @lon2 = (@lon1+@dLon+pi())%(2*pi())-pi()
+
+declare @a float
+declare @b float
+set @a = (@lon1+@dLon+pi())
+set @b = 2*pi()
+declare @result int
+set @result = @a/@b
+set @lon2 = @a-cast(@result as float)*@b
+set @lon2 = @lon2-pi()
+set @lat2 = 180 *@lat2 / pi()
+set @lon2 = 180 *@lon2 / pi()
+return @lat2
+END
+GO
+IF  EXISTS (SELECT * FROM sysobjects WHERE id =OBJECT_ID(N'{databaseOwner}{objectQualifier}Map_LonFromDistanceBearing') AND type in (N'FN'))
+DROP FUNCTION {databaseOwner}{objectQualifier}Map_LonFromDistanceBearing
+GO
+CREATE function {databaseOwner}{objectQualifier}Map_LonFromDistanceBearing(@lat1 float, @lon1 float, @bearing float, @distance float, @type nvarchar(10))
+returns float
+AS
+BEGIN
+declare @d float
+declare @lat2 float
+declare @lon2 float
+declare @brng float
+declare @R float
+
+set @d = @distance
+set @brng= @bearing
+
+set @lat1 = @lat1 * pi() /180
+set @lon1 = @lon1 * pi() / 180
+set @brng = @brng * pi() / 180
+
+set @R = 6371.0
+if LEFT(UPPER(@type),1)='M'
+	set @R = 3956.0
+
+set @d = @d/@R
+
+set @lat2 = @lat1 + @d*cos(@brng)
+
+declare @dPhi float
+declare @q float
+set @dPhi = log(tan(@lat2/2+pi()/4)/tan(@lat1/2+pi()/4))
+if @dPhi != 0
+	set @q = (@lat2-@lat1)/@dPhi
+
+--IS FINITE??
+if (isnumeric(@q)=0)
+	set @q = cos(@lat1)
+declare @dLon float
+set @dLon = @d*sin(@brng)/@q
+
+--BEYOND POLE??
+if (abs(@lat2) > pi()/2)
+	if @lat2 > 0
+		set @lat2 = pi() - @lat2
+	else
+		set @lat2 = -1*pi() - @lat2
+--set @lon2 = (@lon1+@dLon+pi())%(2*pi())-pi()
+
+declare @a float
+declare @b float
+set @a = (@lon1+@dLon+pi())
+set @b = 2*pi()
+declare @result int
+set @result = @a/@b
+set @lon2 = @a-cast(@result as float)*@b
+set @lon2 = @lon2-pi()
+set @lat2 = 180 *@lat2 / pi()
+set @lon2 = 180 *@lon2 / pi()
+return @lon2
+END
+GO
+CREATE TABLE {databaseOwner}{objectQualifier}Map_Maps(
+	[MapID] [int] IDENTITY(1,1) NOT NULL,
+	[PortalID] [int] NULL,
+	[ProviderID] [int] NULL,
+	[SourceID] [int] NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Description] [nvarchar](500) NULL,
+	[Settings] [ntext] NULL,
+ CONSTRAINT [PK_Map_Maps] PRIMARY KEY CLUSTERED 
+(
+	[MapID] ASC
+) 
+)
+GO
+
+CREATE TABLE {databaseOwner}{objectQualifier}Map_Providers(
+	[ProviderID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](50) NULL,
+	[ProviderType] [nchar](4) NULL,
+	[Path] [nvarchar](500) NULL,
+	[AdminPath] [nvarchar](500) NULL,
+ CONSTRAINT [PK_Map_Providers] PRIMARY KEY CLUSTERED 
+(
+	[ProviderID] ASC
+) 
+) 
+GO
+
+CREATE TABLE {databaseOwner}{objectQualifier}Map_Sources(
+	[SourceID] [int] IDENTITY(1,1) NOT NULL,
+	[PortalID] [int] NULL,
+	[ProviderID] [int] NULL,
+	[Name] [nvarchar](50) NULL,
+	[Description] [nvarchar](500) NULL,
+	[Settings] [ntext] NULL,
+	[GeoLocatorProviderID] [int] NULL,
+	[GeoLocatorSettings] [ntext] NULL,
+	[ServiceFlag] [int] NULL,
+ CONSTRAINT [PK_Map_Sources] PRIMARY KEY CLUSTERED 
+(
+	[SourceID] ASC
+) 
+)  
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoint(@PointID int)
+AS
+SELECT PointID,SourceID,IconIndex,Longitude,Latitude,SequenceNumber,SequenceInfo,ZoomShow,ZoomHide,ActionPlot,ActionClick,ActionOpen,SummaryCount
+FROM {databaseOwner}{objectQualifier}Map_Points WHERE PointID = @PointID
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_DeletePoint(@PointID int)
+AS
+declare @SourceID int
+select @SourceID = SourceID from {databaseOwner}{objectQualifier}Map_Points where PointID=@PointID
+DELETE FROM {databaseOwner}{objectQualifier}Map_Points where PointID = @PointID
+
+IF NOT EXISTS(Select top 1 PointID from {databaseOwner}{objectQualifier}Map_Points where SourceID=@SourceID)
+	UPDATE {databaseOwner}{objectQualifier}Map_Sources set ServiceFlag = null where SourceID=@SourceID
+
+GO
+
+CREATE FUNCTION {databaseOwner}{objectQualifier}Map_CalculateDistance
+(
+	@Latitude1 float, 
+	@Longitude1 float,
+	@Latitude2 float, 
+	@Longitude2 float,
+	@Units NVARCHAR(10)
+)
+RETURNS float
+AS
+BEGIN
+	SET @Latitude1 = RADIANS(@Latitude1)
+	SET @Longitude1 = RADIANS(@Longitude1)
+	SET @Latitude2 = RADIANS(@Latitude2)
+	SET @Longitude2 = RADIANS(@Longitude2)
+	DECLARE @R float, @dlon float, @dlat float, @a float, @c float 
+
+	SELECT @R = CASE 
+		WHEN UPPER(LEFT(@Units, 1)) = 'M' THEN 3956.3
+		WHEN UPPER(LEFT(@Units, 1)) = 'N' THEN 3437.7
+		WHEN UPPER(LEFT(@Units, 1)) = 'K' THEN 6367.0
+	END
+
+	SET @dlon = @Longitude2 - @Longitude1 
+	SET @dlat = @Latitude2 - @Latitude1 
+	SET @a = POWER(SIN(@dlat / 2.0), 2.0) + 
+		COS(@Latitude1) * COS(@Latitude2) * POWER(SIN(@dlon / 2.0), 2.0) 
+	SET @c = 2.0 * ATN2(SQRT(@a), SQRT(1.0 - @a)) 
+
+	RETURN (@R * @c)
+
+END
+
+GO
+
+CREATE TABLE {databaseOwner}{objectQualifier}Map_Points(
+	[PointID] [int] IDENTITY(1,1) NOT NULL,
+	[SourceID] [int] NOT NULL,
+	[GUID] [nvarchar](200) NULL,
+	[Address] [nvarchar](300) NULL,
+	[IconIndex] [int] NULL,
+	[Longitude] [float] NULL,
+	[Latitude] [float] NULL,
+	[Description] ntext NULL,
+	[SequenceNumber] [int] NULL,
+	[SequenceInfo] [nvarchar](150) NULL,
+	[ZoomShow] [int] NULL,
+	[ZoomHide] [int] NULL,
+	[SummaryCount] [int] NULL,
+	[ActionPlot] [nvarchar](100) NULL,
+	[ActionClick] [nvarchar](100) NULL,
+	[ActionOpen] [nvarchar](100) NULL,
+	[FailedGeo] [bit] NULL,
+	[isUser] [bit] NULL,
+ CONSTRAINT [PK_Map_Points] PRIMARY KEY CLUSTERED 
+(
+	[PointID] ASC
+) 
+) 
+GO
+
+Create Procedure {databaseOwner}{objectQualifier}Map_GetMaps_ByProviderName(@ProviderName nvarchar(50))
+AS
+Select m.* from 
+	{databaseOwner}{objectQualifier}Map_Maps m 
+	join 
+		{databaseOwner}{objectQualifier}Map_Providers p on 
+			p.ProviderID=m.ProviderID AND
+			p.Name = @ProviderName
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateMap(@PortalID int, @MapID int, @ProviderID int, @SourceID int, @Name nvarchar(100), @Description nvarchar(500), @Settings ntext)
+AS
+IF @PortalID = -1
+	Set @PortalID = null
+
+UPDATE {databaseOwner}{objectQualifier}Map_Maps set 
+	PortalID = @PortalID, 
+	ProviderID = @ProviderID,
+	SourceID = @SourceID,
+	Name = @Name,
+	Description = @Description,
+	Settings = @Settings
+WHERE
+	MapID = @MapID
+
+
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_AddMap(@PortalID int, @ProviderID int, @SourceID int, @Name nvarchar(100), @Description nvarchar(500), @Settings ntext)
+AS
+IF @PortalID = -1
+	Set @PortalID = null
+
+INSERT INTO {databaseOwner}{objectQualifier}Map_Maps(PortalID,ProviderID,SourceID,Name,Description,Settings)
+VALUES (@PortalID, @ProviderID, @SourceID, @Name, @Description, @Settings)
+
+Select SCOPE_IDENTITY()
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_DeleteMap(@MapID int)
+AS
+--MAPS DO NOT HAVE ANY DEPENDANT RECORDS, BECAUSE THE SOURCE CAN REMAIN INDEFINITELY
+	DELETE FROM {databaseOwner}{objectQualifier}Map_Maps where MapID = @MapID
+
+
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetMap(@MapID int)
+AS
+Select PortalID, MapID, ProviderID, SourceID, Name, Description, Settings 
+from {databaseOwner}{objectQualifier}Map_Maps where MapID = @MapID
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetMaps(@PortalID int)
+AS
+--WHEN PORTALID IS NULL OR -1 RETURN ALL SHARED SOURCES
+IF @PortalID = -1 OR @PortalID is null
+	Select PortalID, MapID, ProviderID, SourceID, Name, Description, Settings from {databaseOwner}{objectQualifier}Map_Maps where PortalID is null
+ELSE
+	Select PortalID, MapID, ProviderID, SourceID, Name, Description, Settings from {databaseOwner}{objectQualifier}Map_Maps where PortalID = @PortalID
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetProvidersByType(@ProviderType nchar(4))
+AS
+Select ProviderID, Name, ProviderType, Path, AdminPath from {databaseOwner}{objectQualifier}Map_Providers where ProviderType = @ProviderType ORDER BY Name ASC
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetProvider(@ProviderID int)
+AS
+SELECT ProviderID, Name, ProviderType, Path, AdminPath from 
+{databaseOwner}{objectQualifier}Map_Providers where ProviderID = @ProviderID
+
+GO
+
+Create Procedure {databaseOwner}{objectQualifier}Map_GetSources_ByProviderName(@ProviderName nvarchar(50))
+AS
+Select s.* from 
+	{databaseOwner}{objectQualifier}Map_Sources s 
+	join 
+		{databaseOwner}{objectQualifier}Map_Providers p on 
+			p.ProviderID=s.ProviderID AND
+			p.Name = @ProviderName
+
+GO
+
+CREATE Procedure {databaseOwner}{objectQualifier}Map_GetPoints_ByProviderName_NoGeo (@ProviderName nvarchar(50),@isUser bit, @SourceID int)
+AS
+IF isnull(@SourceID,-1) > 0
+	Select Top 100 s.SourceID,point.PointID,point.Address from 
+	{databaseOwner}{objectQualifier}Map_Sources s 
+	join 
+		{databaseOwner}{objectQualifier}Map_Providers p on 
+			p.ProviderID=s.ProviderID AND
+			p.Name = @ProviderName
+	join
+		{databaseOwner}{objectQualifier}Map_Points point on
+			point.SourceID = s.SourceID AND 
+			s.SourceID = @SourceID AND
+			point.latitude is null AND
+			point.longitude is null AND
+			isnull(point.FailedGeo,0)=0 AND 
+			not Address is null AND
+			LEN(Address) > 0 and
+			isnull(point.isUser,0) = isnull(@isUser,0)
+ELSE
+	Select Top 100 s.SourceID,point.PointID,point.Address from 
+	{databaseOwner}{objectQualifier}Map_Sources s 
+	join 
+		{databaseOwner}{objectQualifier}Map_Providers p on 
+			p.ProviderID=s.ProviderID AND
+			p.Name = @ProviderName
+	join
+		{databaseOwner}{objectQualifier}Map_Points point on
+			point.SourceID = s.SourceID AND
+			point.latitude is null AND
+			point.longitude is null AND
+			isnull(point.FailedGeo,0)=0 AND 
+			not Address is null AND
+			LEN(Address) > 0 and
+			isnull(point.isUser,0) = isnull(@isUser,0)
+
+GO
+
+CREATE Procedure {databaseOwner}{objectQualifier}Map_GetSyncUsers(@SourceID int,@LastUserId int)
+as
+declare @PortalId int
+select @PortalId = PortalId from {databaseOwner}{objectQualifier}Map_Sources
+
+select top 1000 U.UserID,@PortalId
+from {databaseOwner}{objectQualifier}Users U
+left join {databaseOwner}{objectQualifier}UserPortals UP on U.UserId = UP.UserId
+where ( UP.PortalId = @PortalId or @PortalId is null )
+and U.UserId > isnull(@LastUserId,-1)
+order by U.UserID   
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_AddSource(@PortalID int, @ProviderID int, @Name nvarchar(100), @Description nvarchar(500), @Settings ntext, @GeoLocatorProviderID int)
+AS
+IF @PortalID = -1
+	Set @PortalID = null
+INSERT INTO {databaseOwner}{objectQualifier}Map_Sources (PortalID, ProviderID, Name, Description, Settings,GeoLocatorProviderID) VALUES (@PortalID, @ProviderID, @Name, @Description, @Settings, @GeoLocatorProviderID)
+
+SELECT Scope_Identity()
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_DeleteSource(@SourceID int)
+AS
+DELETE FROM {databaseOwner}{objectQualifier}Map_Sources where SourceID=@SourceID
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateSource(@SourceID int, @PortalID int, @ProviderID int, @Name nvarchar(100), @Description nvarchar(500), @Settings ntext, @GeoLocatorProviderID int)
+AS
+UPDATE {databaseOwner}{objectQualifier}Map_Sources
+SET 
+	PortalID = @PortalID,
+	ProviderID = @ProviderID,
+	Name = @Name,
+	Description = @Description,
+	Settings = @Settings,
+	GeoLocatorProviderID = @GeoLocatorProviderID
+where 	SourceID = @SourceID
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateSource_Service(@SourceID int, @ServiceFlag int)
+AS
+UPDATE {databaseOwner}{objectQualifier}Map_Sources
+SET 
+	ServiceFlag = @ServiceFlag
+where 	SourceID = @SourceID
+
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_UpdateSourceGeoLocator(@PortalID int, @SourceID int, @Settings ntext)
+AS
+UPDATE {databaseOwner}{objectQualifier}Map_Sources
+SET 
+	GeoLocatorSettings = @Settings
+where 	SourceID = @SourceID
+
+UPDATE {databaseOwner}{objectQualifier}Map_Points
+Set FailedGeo=0
+WHERE SourceID = @SourceID
+AND isnull(FailedGeo,0)=1
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetSource(@SourceID int)
+AS
+SELECT SourceID, PortalID, ProviderID, Name, Description, Settings,GeoLocatorProviderID,GeoLocatorSettings
+FROM {databaseOwner}{objectQualifier}Map_Sources where SourceID = @SourceID
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetSources(@PortalID int)
+AS
+if @PortalID = -1 OR @PortalID is null 
+	Select SourceID, PortalID, ProviderID, Name, Description, Settings FROM {databaseOwner}{objectQualifier}Map_Sources where PortalID is null
+ELSE
+	Select SourceID, PortalID, ProviderID, Name, Description, Settings FROM {databaseOwner}{objectQualifier}Map_Sources where PortalID = @PortalID
+
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetSource_Service(@SourceID int)
+AS
+SELECT isnull(ServiceFlag,0) ServiceFlag from {databaseOwner}{objectQualifier}Map_Sources
+where 	SourceID = @SourceID
+
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoints_ByLocation(@SourceID int, @Zoom int, @Latitude float, @Longitude float, @Distance float, @Scale nvarchar(10))
+AS
+	declare @MinLatitude float
+	declare @MaxLatitude float
+	declare @MinLongitude float
+	declare @MaxLongitude float
+
+	--GET THE CORNERS
+	select 
+		@MaxLongitude = {databaseOwner}{objectQualifier}Map_LonFromDistanceBearing(@Latitude,@Longitude,90,@Distance,@Scale),
+		@MinLongitude = {databaseOwner}{objectQualifier}Map_LonFromDistanceBearing(@Latitude,@Longitude,270,@Distance,@Scale),
+		@MaxLatitude  = {databaseOwner}{objectQualifier}Map_LatFromDistanceBearing(@Latitude,@Longitude,0,@Distance,@Scale),
+		@MinLatitude  = {databaseOwner}{objectQualifier}Map_LatFromDistanceBearing(@Latitude,@Longitude,180,@Distance,@Scale)
+
+	Select *,{databaseOwner}{objectQualifier}Map_DistanceBetweenPoints(@Latitude,@Longitude,Latitude,Longitude,@Scale) Distance from 
+	{databaseOwner}{objectQualifier}Map_Points 
+	WHERE 
+		SourceID=@SourceID AND
+		(@Zoom=-1 OR
+		(@Zoom BETWEEN isnull(ZoomShow,-1) AND isnull(ZoomHide,20)) OR
+		ZoomShow=0 AND ZoomHide=0
+		)
+
+		AND (
+				Latitude between @MinLatitude AND @MaxLatitude AND
+				Longitude between @MinLongitude AND @MaxLongitude
+			)
+	order  by Distance
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoints(@SourceID int, @Zoom int)
+AS
+	Select 
+	PointID,
+	GUID,
+	Address,
+	Latitude,
+	Longitude,
+	IconIndex,
+	SequenceNumber,
+	SequenceInfo,
+	Description,
+	isnull(ZoomShow,-1) ZoomShow,
+	isnull(ZoomHide,-1) ZoomHide,
+	ActionClick,
+	ActionOpen,
+	ActionPlot,
+	0.0 Distance,
+	SummaryCount
+	 from {databaseOwner}{objectQualifier}Map_Points 
+	WHERE 
+		SourceID=@SourceID AND
+(
+		@Zoom=-1 OR
+		@Zoom BETWEEN isnull(ZoomShow,-1) AND isnull(ZoomHide,0)
+		OR ZoomShow=0 AND ZoomHide=0
+)
+	order by SequenceNumber
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoints_NoLocation(@SourceID int)
+AS
+
+	Select * from {databaseOwner}{objectQualifier}Map_Points where (Longitude is null or Latitude is null) and SourceID=@SourceID
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoint_ByGUID(@SourceID int, @GUID nvarchar(200))
+AS
+
+	Select * from {databaseOwner}{objectQualifier}Map_Points 
+	WHERE 
+		SourceID=@SourceID AND
+		GUID = @GUID
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_AddPoint(@SourceID int, @GUID nvarchar(200), @Address nvarchar(300), @Description ntext,  @IconIndex int, @Longitude float, @Latitude float, @SequenceNumber int, @SequenceInfo nvarchar(150), @ZoomShow int, @ZoomHide int, @ActionPlot nvarchar(100), @ActionClick nvarchar(100), @ActionOpen nvarchar(100), @SummaryOnly bit)
+AS
+declare @PointID int
+Select top 1 @PointID=PointID from {databaseOwner}{objectQualifier}Map_Points where GUID=@GUID and SourceID=@SourceID
+IF @PointID is null
+BEGIN
+	select @PointID = PointID from {databaseOwner}{objectQualifier}Map_Points where SourceID = @SourceID and Latitude = @Latitude and Longitude = @Longitude
+	IF NOT @PointID is null
+	BEGIN
+		IF NOT isnull(@SummaryOnly,0) = 1 AND NOT @Description is null and DATALENGTH(@Description) > 0
+		BEGIN
+			declare @ptrval binary(16)
+			SELECT @ptrval = TEXTPTR(Description)
+			FROM dbo.Map_Points
+			WHERE PointID = @PointID						
+			declare @newline nvarchar(4)
+			set @newline = CHAR(10) 
+			UPDATETEXT {databaseOwner}{objectQualifier}Map_Points.Description @ptrval null 0  @newline
+			UPDATETEXT {databaseOwner}{objectQualifier}Map_Points.Description @ptrval null 0  @Description
+		END
+				
+		UPDATE {databaseOwner}{objectQualifier}Map_Points set
+			SummaryCount = isnull(SummaryCount,1) + 1
+		WHERE PointID = @PointID
+		Select @PointID
+	END
+	ELSE
+	BEGIN
+		INSERT INTO {databaseOwner}{objectQualifier}Map_Points(SourceID,Address,Description, GUID, IconIndex,Longitude,Latitude,SequenceNumber,SequenceInfo,ZoomShow,ZoomHide,ActionPlot,ActionClick,ActionOpen,SummaryCount)
+		VALUES (@SourceID,@Address,CASE WHEN isnull(@SummaryOnly,0) = 1 THEN  null ELSE @Description END,@GUID,@IconIndex,@Longitude,@Latitude,@SequenceNumber,@SequenceInfo,@ZoomShow,@ZoomHide,@ActionPlot,@ActionClick,@ActionOpen,1)
+		Select SCOPE_IDENTITY()	
+	END
+END
+ELSE
+BEGIN
+	UPDATE {databaseOwner}{objectQualifier}Map_Points set
+		SourceID = @SourceID,
+		GUID = @GUID,
+		Address = @Address,
+		Description = @Description,
+		IconIndex = @IconIndex,
+		Longitude = @Longitude,
+		Latitude = @Latitude,
+		SequenceNumber = @SequenceNumber,
+		SequenceInfo = @SequenceInfo,
+		ZoomShow = @ZoomShow,
+		ZoomHide = @ZoomHide,
+		ActionPlot = @ActionPlot,
+		ActionOpen = @ActionOpen,
+		ActionClick = @ActionClick
+	WHERE PointID = @PointID
+	Select @PointID
+END
+
+
+
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_UpdatePoint(@PointID int, @SourceID int, @GUID varchar(200), @Address nvarchar(300),@Description ntext, @IconIndex int, @Longitude float, @Latitude float, @SequenceNumber int, @SequenceInfo nvarchar(150), @ZoomShow int, @ZoomHide int, @ActionPlot nvarchar(100), @ActionClick nvarchar(100), @ActionOpen nvarchar(100))
+AS
+UPDATE {databaseOwner}{objectQualifier}Map_Points set
+	SourceID = @SourceID,
+	GUID = @GUID,
+	Address = @Address,
+	Description = @Description,
+	IconIndex = @IconIndex,
+	Longitude = @Longitude,
+	Latitude = @Latitude,
+	SequenceNumber = @SequenceNumber,
+	SequenceInfo = @SequenceInfo,
+	ZoomShow = @ZoomShow,
+	ZoomHide = @ZoomHide,
+	ActionPlot = @ActionPlot,
+	ActionOpen = @ActionOpen,
+	ActionClick = @ActionClick
+WHERE PointID = @PointID
+
+GO
+
+CREATE Procedure {databaseOwner}{objectQualifier}Map_UpdatePoint_Location(@PointID int, @FailedGeo bit, @Longitude float, @Latitude float)
+AS
+	IF @FailedGeo=1 
+		UPDATE {databaseOwner}{objectQualifier}Map_Points set FailedGeo = 1, Latitude=null,longitude=null where PointID=@PointID
+	ELSE
+		UPDATE {databaseOwner}{objectQualifier}Map_Points set FailedGeo = 0, Latitude=@Latitude,longitude=@Longitude where PointID=@PointID
+		
+GO
+
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Map_GetPoint_ByAddress(@SourceID int, @Address nvarchar(300))
+AS
+
+	Select top 1 * from {databaseOwner}{objectQualifier}Map_Points 
+	WHERE 
+		Address = @Address AND not Latitude is null AND not Longitude is null
+		
+GO
+
+	INSERT INTO {databaseOwner}{objectQualifier}Map_Providers(Name,ProviderType,Path,AdminPath) VALUES ('DotNetNuke.Map.Basic','D','~/DesktopModules/Map/Sources/Standard.Data.ascx','~/DesktopModules/Map/Sources/Standard.Admin.ascx')
+	INSERT INTO {databaseOwner}{objectQualifier}Map_Providers(Name,ProviderType,Path,AdminPath) VALUES ('Google.Standard','V','~/DesktopModules/Map/Visuals/Google.Standard.ascx','~/DesktopModules/Map/Visuals/Google.Standard.Admin.ascx')
+	INSERT INTO {databaseOwner}{objectQualifier}Map_Providers(Name,ProviderType,Path,AdminPath) VALUES ('Google.TimeLapse','V','~/DesktopModules/Map/Visuals/Google.TimeLapse.ascx','~/DesktopModules/Map/Visuals/Google.TimeLapse.Admin.ascx')
+	INSERT INTO {databaseOwner}{objectQualifier}Map_Providers(Name,ProviderType,Path,AdminPath) VALUES ('Google.Positional','V','~/DesktopModules/Map/Visuals/Google.Positional.ascx','~/DesktopModules/Map/Visuals/Google.Positional.Admin.ascx')
+	INSERT INTO {databaseOwner}{objectQualifier}Map_Providers(Name,ProviderType,Path,AdminPath) VALUES ('Google.Directory','V','~/DesktopModules/Map/Visuals/Google.Directory.ascx','~/DesktopModules/Map/Visuals/Google.Directory.Admin.ascx')
+	INSERT INTO {databaseOwner}{objectQualifier}Map_Providers(Name,ProviderType,Path,AdminPath) VALUES ('Google.GeoLocator','G','DotNetNuke.Modules.Map.Geolocator.Google.GeoLocator,Dotnetnuke.Map.Geolocator.Google','~/DesktopModules/Map/Geolocators/Google.Geolocator.Admin.ascx')

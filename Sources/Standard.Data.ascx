@@ -1,0 +1,1 @@
+<%@ Control Language="vb" AutoEventWireup="false" Codebehind="Standard.Data.ascx.vb" Inherits="DotNetNuke.Modules.Map.Data.StandardData" TargetSchema="http://schemas.microsoft.com/intellisense/ie5" %>

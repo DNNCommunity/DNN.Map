@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="lblUserOptions.Text" xml:space="preserve">
+    <value>Users Online</value>
+  </data>
+  <data name="rdoDataSourceUserOnline.Text" xml:space="preserve">
+    <value>Users Online</value>
+  </data>
+  <data name="lnkCancelQueryOptions.Text" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="lblCustomConnection.Text" xml:space="preserve">
+    <value>Connection String</value>
+  </data>
+  <data name="lblQELeft.Text" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="rdoDataSourceCountriesOnline.Text" xml:space="preserve">
+    <value>Countries Online</value>
+  </data>
+  <data name="lblQEType.Text" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="lblQESecurity.Text" xml:space="preserve">
+    <value>Security</value>
+  </data>
+  <data name="chkSummaryOnly.Text" xml:space="preserve">
+    <value>Show Summary Information</value>
+  </data>
+  <data name="lnkGeoService.Text" xml:space="preserve">
+    <value>Execute Geo Coding</value>
+  </data>
+  <data name="chkQuerySQLInjection.Text" xml:space="preserve">
+    <value>Protect From SQL Injection</value>
+  </data>
+  <data name="lnkUserService.Text" xml:space="preserve">
+    <value>Execute User Import</value>
+  </data>
+  <data name="lnkCancel.Text" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="lnkSaveQueryOptions.Text" xml:space="preserve">
+    <value>Save Variable</value>
+  </data>
+  <data name="lblQueryVariables.Text" xml:space="preserve">
+    <value>Query Variables</value>
+  </data>
+  <data name="lblCustomQuery.Text" xml:space="preserve">
+    <value>Query</value>
+  </data>
+  <data name="lblQERight.Text" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="rdoDataSourceDataPoints.Text" xml:space="preserve">
+    <value>Standard Data Points</value>
+  </data>
+  <data name="lblQESource.Text" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="lblSourceInfo.Text" xml:space="preserve">
+    <value>Data Source Settings</value>
+  </data>
+  <data name="lblInstructions.Text" xml:space="preserve">
+    <value>&lt;p&gt;The Data Source provides instruction for the Map to determine how the data is loaded, where the storage of the data is located, and the general layout content layout of the points.&lt;/p&gt;
+&lt;p&gt;&lt;ol&gt;To get started
+&lt;li&gt;Set the Point Description Format - This format identifies the template layout for all your points. This means that when a point is clicked, the Point Description is displayed in the form of a pop-up. Within the content you may use any of the following tokens:
+&lt;ul&gt;
+&lt;li&gt;[ADDRESS] - the Address value of your point.&lt;/li&gt;
+&lt;li&gt;[DESCRIPTION] - the Description value of your point.&lt;/li&gt;
+&lt;li&gt;[SUMMARYCOUNT] - when more than one point has the same location, the Summary is incremented to show the total number of records at that location.&lt;/li&gt;
+&lt;li&gt;[TIMERINFO] - The Sequence Info, generally used for Timelapse display.&lt;/li&gt;
+&lt;li&gt;[TIMER] - The physical sequence value of your point&lt;/li&gt;
+&lt;li&gt;[LATITUDE] - The latitude of the point in degrees&lt;/li&gt;
+&lt;li&gt;[LONGITUDE] - The longitude of the point in degrees&lt;/li&gt;
+&lt;li&gt;[ICON] - the specified URL of the Icon for the point&lt;/li&gt;
+&lt;li&gt;[DISTANCE] - when populated, the Distance between your selected point and the record&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Select your Data Source Setting:
+&lt;ul&gt;
+&lt;li&gt;Users Online - your users will be automatically imported into the Points data and geocoding will plot them based on the Geo Coder settings.&lt;/li&gt;
+&lt;li&gt;Standard Data Points - your map will operate in standard mode, allowing you to add and remove your own points from the data.&lt;/li&gt;
+&lt;li&gt;Custom Query - your points are located in a separate table, or distant database, you can provide the query, connection and any runtime variables you require. (This is an Admin privilege only).
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;At any time, click the Execute Geo Coding to force mapping of points in your data that have not been mapped. This is not always to include ALL points, as it operates to maintain peak performance of the site. For many points, this will need to be executed repeatedly.
+&lt;li&gt;At any time, execute the User importing for the Users Online. This again operates only on sets of your data, so it will need to be executed repeatedly to complete the full import.
+&lt;li&gt;Both of the aforementioned routines automatically execute during site utilization at about 1 time per 5 minutes.
+&lt;/ol&gt;
+&lt;/p&gt;</value>
+  </data>
+  <data name="lblPointContent.Text" xml:space="preserve">
+    <value>Point Description Format</value>
+  </data>
+  <data name="rdoDataSourceCustom.Text" xml:space="preserve">
+    <value>Custom Query</value>
+  </data>
+  <data name="lnkAddQueryVarable.Text" xml:space="preserve">
+    <value>Add Query Variable</value>
+  </data>
+  <data name="lblQETarget.Text" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="lblPanelName.Text" xml:space="preserve">
+    <value>Map Data Settings</value>
+  </data>
+  <data name="lnkSave.Text" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="lblQueryTarget.Text" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="lblQEEmpty.Text" xml:space="preserve">
+    <value>Empty Value</value>
+  </data>
+  <data name="lblQueryEditor.Text" xml:space="preserve">
+    <value>Query Editor</value>
+  </data>
+  <data name="lblUserOptionsInstructions.Text" xml:space="preserve">
+    <value>The Users Online data source provides the ability to display your users by locations based on the setting contained in the Geo Locator. For example, if you would like to show each users down to the specific address provided, in the Geo Locator you would check all available address options. However, a common scenario is to provide a regional point per group of users. Meaning that the users will be grouped into one point. The option provided below, "Show Summary Information", means that the users will be summarized into one value and their names will be grouped together. If you leave this unchecked, no user names will be visible, but the overall count of user records will be provided.</value>
+  </data>
+  <data name="lblServiceInstructions.Text" xml:space="preserve">
+    <value>Map provides services based on the type of data source you have selected. These services are not availabe when the Geo Locator has not been established, because they would not execute without the required information.&lt;br/&gt; The provided services include both Geo Coding your current points and converting your user records into map points. Each of these services automatically execute on a syncronized basis when the map is in use, but you can for a block of records to be handled by clicking on the following links. Blocks are handled rather than the entire table set due to the constraints on both the geo coding service, as well as the site runtime and performance.</value>
+  </data>
+  <data name="lblCustomQueryInstructions.Text" xml:space="preserve">
+    <value>Custom Query sources provides the ability to select data for your points from external sources. The base requirement for this is the simple fact that your external source will provide its own Longitude and Latitude. Please refer to the Map_Points table which defines the require columns. Your external source query MUST result in the required data structure. Additionally, with Custom Query you may add any number of Query Variables to be consumed within the Query. This provides the ability to create a robust and interactive search mechanism or direct lookup and plotting of your records based on incoming parameters from your user.</value>
+  </data>
+  <data name="lblStandardOptions.Text" xml:space="preserve">
+    <value>Standard Data Points</value>
+  </data>
+  <data name="lblServiceBreak.Text" xml:space="preserve">
+    <value>&amp;nbsp;|&amp;nbsp;</value>
+  </data>
+  <data name="lblService.Text" xml:space="preserve">
+    <value>Services</value>
+  </data>
+  <data name="lblStandardInstructions.Text" xml:space="preserve">
+    <value>Standard Data Points provides the simplest inclusion of your records into the Map. You may use the Data page to manipulate your records, perform address lookup and use the Geo Coding service directly. This setting can also be used to handle external data sources. To do this, you must only push your data source records directly into the Map_Points table, setting the appropriate Source ID. The GUID column of this table provides an ability to link your external source with the specific points.</value>
+  </data>
+  <data name="lblServiceBreakClear.Text" xml:space="preserve">
+    <value>&amp;nbsp;|&amp;nbsp;</value>
+  </data>
+  <data name="lnkClearService.Text" xml:space="preserve">
+    <value>Delete All Points</value>
+  </data>
+  <data name="lblDataSourceCustom_Error.Text" xml:space="preserve">
+    <value>To create a custom query, or modify the custom query for this map - you must be a Super User. Please request this permission from your Host.</value>
+  </data>
+</root>
